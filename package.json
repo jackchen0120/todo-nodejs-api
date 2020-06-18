@@ -5,10 +5,16 @@
   "main": "index.js",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "boom": "^7.3.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-jwt": "^5.3.3",
+    "express-validator": "^6.5.0",
+    "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1"
   },
   "devDependencies": {
+    "crypto": "^1.0.1",
     "nodemon": "^2.0.4"
   },
   "scripts": {
