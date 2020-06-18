@@ -16,12 +16,13 @@ const jwtAuth = expressJwt({
       return req.query.token
     }
   }
-  // 设置jwt认证白名单，比如/api/login登录接口不需要拦截是否登录
+  // 设置jwt认证白名单，比如/api/login登录接口不需要拦截
 }).unless({
   path: [
     '/',
     '/api/login',
-    '/api/register'
+    '/api/register',
+    '/api/resetPwd'
   ]
 })
 

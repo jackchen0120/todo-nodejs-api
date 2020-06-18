@@ -1,22 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const md5 = require('../utils/md5');
-const { login, register, findUser } = require('../services/users');
+const { 
+  login, 
+  register, 
+  resetPwd, 
+  validateUser,
+  findUser 
+} = require('../services/users');
 const { body, validationResult } = require('express-validator');
 const boom = require('boom');
 const jwt = require('jsonwebtoken');
-const { PRIVATE_KEY, JWT_EXPIRED } = require('../utils/constant');
+const { 
+  CODE_ERROR,
+  CODE_SUCCESS, 
+  PRIVATE_KEY, 
+  JWT_EXPIRED 
+} = require('../utils/constant');
 const { decode } = require('../utils/user-jwt');
 
 
-// 登录信息校验
-const loginVaildator = [
+// 登录/注册校验
+const vaildator = [
   body('username').isString().withMessage('用户名类型错误'),
   body('password').isString().withMessage('密码类型错误')
 ]
 
+// 重置密码校验
+const resetPwdVaildator = [
+  body('username').isString().withMessage('用户名类型错误'),
+  body('oldPassword').isString().withMessage('密码类型错误'),
+  body('newPassword').isString().withMessage('密码类型错误')
+]
+
 // 用户登录
-router.post('/login', loginVaildator, (req, res, next) => {
+router.post('/login', vaildator, (req, res, next) => {
   const err = validationResult(req);
   // 如果验证错误，empty不为空
   if (!err.isEmpty()) {
@@ -30,10 +48,10 @@ router.post('/login', loginVaildator, (req, res, next) => {
     password = md5(password);
     login(username, password)
     .then(user => {
-    	console.log('login===', user);
+    	console.log('用户登录===', user);
       if (!user || user.length === 0) {
         res.json({ 
-        	code: -1, 
+        	code: CODE_ERROR, 
         	msg: '用户名或密码错误', 
         	data: null 
         })
@@ -48,7 +66,7 @@ router.post('/login', loginVaildator, (req, res, next) => {
           { expiresIn: JWT_EXPIRED }
         )
         res.json({ 
-        	code: 0, 
+        	code: CODE_SUCCESS, 
         	msg: '登录成功', 
         	data: { token } 
         })
@@ -58,7 +76,7 @@ router.post('/login', loginVaildator, (req, res, next) => {
 })
 
 // 用户注册
-router.post('/register', loginVaildator, (req, res, next) => {
+router.post('/register', vaildator, (req, res, next) => {
   const err = validationResult(req);
   // 如果验证错误，empty不为空
   if (!err.isEmpty()) {
@@ -69,23 +87,22 @@ router.post('/register', loginVaildator, (req, res, next) => {
   } else {
     let { username, password } = req.body;
     findUser(username)
-  	.then(user => {
-  		console.log('findUser===', user);
-  		if (user) {
+  	.then(data => {
+  		// console.log('用户注册===', user);
+  		if (data) {
   			res.json({ 
-	      	code: -1, 
+	      	code: CODE_ERROR, 
 	      	msg: '用户已存在', 
 	      	data: null 
 	      })
   		} else {
-	    	// md5加密
 	    	password = md5(password);
   			register(username, password)
 		    .then(user => {
-		    	console.log('register===', user);
+		    	console.log('用户注册===', user);
 		      if (!user || user.length === 0) {
 		        res.json({ 
-		        	code: -1, 
+		        	code: CODE_ERROR, 
 		        	msg: '注册失败', 
 		        	data: null 
 		        })
@@ -100,7 +117,7 @@ router.post('/register', loginVaildator, (req, res, next) => {
 		          { expiresIn: JWT_EXPIRED }
 		        )
 		        res.json({ 
-		        	code: 0, 
+		        	code: CODE_SUCCESS, 
 		        	msg: '注册成功', 
 		        	data: { token } 
 		        })
@@ -108,6 +125,60 @@ router.post('/register', loginVaildator, (req, res, next) => {
 		    })
   		}
   	})
+   
+  }
+})
+
+// 密码重置
+router.post('/resetPwd', resetPwdVaildator, (req, res, next) => {
+  const err = validationResult(req);
+  // 如果验证错误，empty不为空
+  if (!err.isEmpty()) {
+    // 获取错误信息
+    const [{ msg }] = err.errors;
+    // 抛出错误，交给我们自定义的统一异常处理程序进行错误返回 
+    next(boom.badRequest(msg));
+  } else {
+    let { username, oldPassword, newPassword } = req.body;
+    oldPassword = md5(oldPassword);
+    validateUser(username, oldPassword)
+    .then(data => {
+      console.log('校验用户名和密码===', data);
+      if (data) {
+        if (newPassword) {
+          newPassword = md5(newPassword);
+          resetPwd(username, newPassword)
+          .then(user => {
+            console.log('密码重置===', user);
+            if (!user || user.length === 0) {
+              res.json({ 
+                code: CODE_ERROR, 
+                msg: '重置密码失败', 
+                data: null 
+              })
+            } else {
+              res.json({ 
+                code: CODE_SUCCESS, 
+                msg: '重置密码成功', 
+                data: null
+              })
+            }
+          })
+        } else {
+          res.json({ 
+            code: CODE_ERROR, 
+            msg: '新密码不能为空', 
+            data: null 
+          })
+        }
+      } else {
+        res.json({ 
+          code: CODE_ERROR, 
+          msg: '用户名或旧密码错误', 
+          data: null 
+        })
+      }
+    })
    
   }
 })
@@ -120,13 +191,13 @@ router.get('/info', (req, res, next) => {
   .then(user => {
     if (user) {
 			res.json({ 
-				code: 0, 
+				code: CODE_SUCCESS, 
 				msg: '用户信息查询成功', 
 				data: user 
 			})
     } else {
       res.json({ 
-      	code: -1, 
+      	code: CODE_ERROR, 
       	msg: '用户信息查询失败', 
       	data: null 
       })
