@@ -1,3 +1,10 @@
+/**
+ * 描述: 封装连接mysql模块
+ * 作者: Jack Chen
+ * 日期: 2020-06-20
+*/
+
+
 const mysql = require('mysql');
 const config = require('../db/dbConfig');
 

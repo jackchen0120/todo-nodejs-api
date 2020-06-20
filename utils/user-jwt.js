@@ -1,3 +1,9 @@
+/**
+ * 描述: jwt-token验证和解析函数
+ * 作者: Jack Chen
+ * 日期: 2020-06-20
+*/
+
 const jwt = require('jsonwebtoken'); // 引入验证jsonwebtoken模块
 const expressJwt = require('express-jwt'); // 引入express-jwt模块
 const { PRIVATE_KEY } = require('./constant'); // 引入自定义的jwt密钥

@@ -2,6 +2,7 @@
   "name": "todo-nodejs-api",
   "version": "1.0.0",
   "description": "NodeJS全栈开发之RESTFUL API基于Node.js+Express+Mysql实现后端接口",
+  "author": "JackChen <278910933@qq.com>",
   "main": "index.js",
   "dependencies": {
     "body-parser": "^1.19.0",
