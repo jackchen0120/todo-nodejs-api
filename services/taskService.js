@@ -51,13 +51,13 @@ function queryTaskList(req, res, next) {
         let n = (pageNo - 1) * pageSize;
         // 拼接分页的sql语句命令
         if (status) {
-          let query_1 = query + ` where status='${status}'`;
+          let query_1 = `select d.id, d.title, d.content, d.status, d.is_major, d.gmt_create, d.gmt_expire from sys_task d where status='${status}' order by d.gmt_create desc`;
           querySql(query_1)
           .then(result_1 => {
             console.log('分页1===', result_1);
             if (!result_1 || result_1.length === 0) {
               res.json({ 
-                code: CODE_ERROR, 
+                code: CODE_SUCCESS, 
                 msg: '暂无数据', 
                 data: null 
               })
@@ -68,7 +68,7 @@ function queryTaskList(req, res, next) {
                 console.log('分页2===', result_2);
                 if (!result_2 || result_2.length === 0) {
                   res.json({ 
-                    code: CODE_ERROR, 
+                    code: CODE_SUCCESS, 
                     msg: '暂无数据', 
                     data: null 
                   })
@@ -79,8 +79,8 @@ function queryTaskList(req, res, next) {
                     data: {
                       rows: result_2,
                       total: result_1.length,
-                      pageNo: pageNo,
-                      pageSize: pageSize,
+                      pageNo: parseInt(pageNo),
+                      pageSize: parseInt(pageSize),
                     } 
                   })
                 }
@@ -88,13 +88,13 @@ function queryTaskList(req, res, next) {
             }
           })
         } else {
-          let query_3 = query + ` limit ${n} , ${pageSize}`;
+          let query_3 = query + ` order by d.gmt_create desc limit ${n} , ${pageSize}`;
           querySql(query_3)
           .then(result_3 => {
             console.log('分页2===', result_3);
             if (!result_3 || result_3.length === 0) {
               res.json({ 
-                code: CODE_ERROR, 
+                code: CODE_SUCCESS, 
                 msg: '暂无数据', 
                 data: null 
               })
@@ -105,8 +105,8 @@ function queryTaskList(req, res, next) {
                 data: {
                   rows: result_3,
                   total: total,
-                  pageNo: pageNo,
-                  pageSize: pageSize,
+                  pageNo: parseInt(pageNo),
+                  pageSize: parseInt(pageSize),
                 } 
               })
             }
@@ -201,7 +201,7 @@ function editTask(req, res, next) {
       } else {
         res.json({ 
           code: CODE_ERROR, 
-          msg: '数据不存在', 
+          msg: '参数错误或数据不存在', 
           data: null 
         })
       }
@@ -224,7 +224,7 @@ function updateTaskStatus(req, res, next) {
         const query = `update sys_task set status='${status}' where id='${id}'`;
         querySql(query)
         .then(data => {
-          // console.log('编辑任务===', data);
+          // console.log('操作任务状态===', data);
           if (!data || data.length === 0) {
             res.json({ 
               code: CODE_ERROR, 
@@ -242,7 +242,48 @@ function updateTaskStatus(req, res, next) {
       } else {
         res.json({ 
           code: CODE_ERROR, 
-          msg: '数据不存在', 
+          msg: '参数错误或数据不存在', 
+          data: null 
+        })
+      }
+    })
+
+  }
+}
+
+// 点亮红星标记
+function updateMark(req, res, next) {
+  const err = validationResult(req);
+  if (!err.isEmpty()) {
+    const [{ msg }] = err.errors;
+    next(boom.badRequest(msg));
+  } else {
+    let { id, is_major } = req.body;
+    findTask(id, 2)
+    .then(task => {
+      if (task) {
+        const query = `update sys_task set is_major='${is_major}' where id='${id}'`;
+        querySql(query)
+        .then(data => {
+          // console.log('点亮红星标记===', data);
+          if (!data || data.length === 0) {
+            res.json({ 
+              code: CODE_ERROR, 
+              msg: '操作数据失败', 
+              data: null 
+            })
+          } else {
+            res.json({ 
+              code: CODE_SUCCESS, 
+              msg: '操作数据成功', 
+              data: null 
+            })
+          }
+        })
+      } else {
+        res.json({ 
+          code: CODE_ERROR, 
+          msg: '参数错误或数据不存在', 
           data: null 
         })
       }
@@ -258,11 +299,12 @@ function deleteTask(req, res, next) {
     const [{ msg }] = err.errors;
     next(boom.badRequest(msg));
   } else {
-    let { id } = req.body;
+    let { id, status } = req.body;
     findTask(id, 2)
     .then(task => {
       if (task) {
-        const query = `delete from sys_task where id='${id}'`;
+        const query = `update sys_task set status='${status}' where id='${id}'`;
+        // const query = `delete from sys_task where id='${id}'`;
         querySql(query)
         .then(data => {
           // console.log('删除任务===', data);
@@ -309,5 +351,6 @@ module.exports = {
   addTask,
   editTask,
   updateTaskStatus,
+  updateMark,
   deleteTask
 }

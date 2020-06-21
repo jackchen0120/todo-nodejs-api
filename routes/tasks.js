@@ -21,6 +21,9 @@ router.put('/editTask', service.editTask);
 // 操作任务状态接口
 router.put('/updateTaskStatus', service.updateTaskStatus);
 
+// 点亮红星标记接口
+router.put('/updateMark', service.updateMark);
+
 // 删除任务接口
 router.delete('/deleteTask', service.deleteTask);
 
