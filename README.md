@@ -54,9 +54,9 @@ npm install 或 yarn
 ```
 
 ## MySQL安装
-```
+
 请移步到我的一篇博客[前端必知必会MySQL的那些事儿 - NodeJS全栈成长之路](https://juejin.im/post/5ee6010ef265da76d3188ea8)
-```
+
 
 ## 开发模式
 ```
