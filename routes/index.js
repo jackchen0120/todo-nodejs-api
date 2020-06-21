@@ -5,7 +5,7 @@
 */
 
 const express = require('express');
-const boom = require('boom'); // 引入boom模块，处理程序异常状态
+// const boom = require('boom'); // 引入boom模块，处理程序异常状态
 const userRouter = require('./users'); // 引入user路由模块
 const taskRouter = require('./tasks'); // 引入task路由模块
 const { jwtAuth, decode } = require('../utils/user-jwt'); // 引入jwt认证函数
