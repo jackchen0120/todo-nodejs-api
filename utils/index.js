@@ -1,5 +1,5 @@
 /**
- * 描述: 封装连接mysql模块
+ * 描述: 连接mysql模块
  * 作者: Jack Chen
  * 日期: 2020-06-20
 */
@@ -8,7 +8,7 @@
 const mysql = require('mysql');
 const config = require('../db/dbConfig');
 
-//连接mysql
+// 连接mysql
 function connect() {
   const { host, user, password, database } = config;
   return mysql.createConnection({
@@ -19,7 +19,7 @@ function connect() {
   })
 }
 
-//新建查询连接
+// 新建查询连接
 function querySql(sql) { 
   const conn = connect();
   return new Promise((resolve, reject) => {
@@ -34,13 +34,13 @@ function querySql(sql) {
     } catch (e) {
       reject(e);
     } finally {
-      //释放连接
+      // 释放连接
       conn.end();
     }
   })
 }
 
-//查询一条语句
+// 查询一条语句
 function queryOne(sql) {
   return new Promise((resolve, reject) => {
     querySql(sql).then(res => {
