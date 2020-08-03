@@ -3,6 +3,8 @@ NodeJS全栈开发之后端接口开发基于Node.js+Express+Mysql实现RESTFUL 
 
 [在线DEMO演示](http://106.55.168.13:8082/)
 
+[NodeJS全栈开发一个功能完善的Express项目实战分享](https://juejin.im/post/6844904198551666701)
+
 # 目录结构
 ```
 │  app.js                              // 入口文件
