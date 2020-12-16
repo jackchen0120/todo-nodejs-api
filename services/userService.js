@@ -32,7 +32,7 @@ function login(req, res, next) {
     let { username, password } = req.body;
     // md5加密
     password = md5(password);
-    const query = `select * from sys_user where username='${username}' and password='${password}'`;
+    const query = `select * from user where username='${username}' and password='${password}'`;
     querySql(query)
     .then(user => {
     	// console.log('用户登录===', user);
@@ -96,7 +96,7 @@ function register(req, res, next) {
 	      })
   		} else {
 	    	password = md5(password);
-  			const query = `insert into sys_user(username, password) values('${username}', '${password}')`;
+        const query = `insert into user(username, password) values('${username}', '${password}')`;
   			querySql(query)
 		    .then(result => {
 		    	// console.log('用户注册===', result);
@@ -107,7 +107,7 @@ function register(req, res, next) {
 		        	data: null 
 		        })
 		      } else {
-            const queryUser = `select * from sys_user where username='${username}' and password='${password}'`;
+            const queryUser = `select * from user where username='${username}' and password='${password}'`;
             querySql(queryUser)
             .then(user => {
               const token = jwt.sign(
@@ -154,11 +154,11 @@ function resetPwd(req, res, next) {
     oldPassword = md5(oldPassword);
     validateUser(username, oldPassword)
     .then(data => {
-      console.log('校验用户名和密码===', data);
+      // console.log('校验用户名和密码===', data);
       if (data) {
         if (newPassword) {
           newPassword = md5(newPassword);
-				  const query = `update sys_user set password='${newPassword}' where username='${username}'`;
+				  const query = `update user set password='${newPassword}' where username='${username}'`;
 				  querySql(query)
           .then(user => {
             // console.log('密码重置===', user);
@@ -197,13 +197,13 @@ function resetPwd(req, res, next) {
 
 // 校验用户名和密码
 function validateUser(username, oldPassword) {
-	const query = `select id, username from sys_user where username='${username}' and password='${oldPassword}'`;
+	const query = `select id, username from user where username='${username}' and password='${oldPassword}'`;
   	return queryOne(query);
 }
 
 // 通过用户名查询用户信息
 function findUser(username) {
-  const query = `select id, username from sys_user where username='${username}'`;
+  const query = `select id, username from user where username='${username}'`;
   return queryOne(query);
 }
 
