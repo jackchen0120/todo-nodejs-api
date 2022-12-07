@@ -5,10 +5,10 @@
   "author": "JackChen <278910933@qq.com>",
   "main": "index.js",
   "dependencies": {
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.1",
     "boom": "^7.3.0",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "express-jwt": "^5.3.3",
     "express-validator": "^6.5.0",
     "jsonwebtoken": "^8.5.1",
